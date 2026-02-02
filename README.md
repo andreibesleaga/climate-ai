@@ -1,79 +1,96 @@
-<!-- This is the markdown template for the final project of the Building AI course, 
-created by Reaktor Innovations and University of Helsinki. 
-Copy the template, paste it to your GitHub README and edit! -->
+# Climate AI - Mobile Mesh EWS - AI Decision Brain
 
-# Project Title
-
-Final project for the Building AI course
+Final project for Building AI course, AI Decision Brain of the EWS System
 
 ## Summary
 
-Describe briefly in 2-3 sentences what your project is about. About 250 characters is a nice length! 
+This project implements an AI-driven Early Warning System (EWS) that combines real-time data from a mobile sensor mesh (EVs, Drones, IoT) with satellite imagery. It uses Google BigQuery and Gemini AI to detect climate risks like wildfires and floods, providing hyper-local alerts to citizens and emergency responders and the AI Decision Brain is an important part of the system.
 
 
 ## Background
 
-Which problems does your idea solve? How common or frequent is this problem? What is your personal motivation? Why is this topic important or interesting?
+Climate disasters such as wildfires and floods are becoming more frequent and intense, often catching communities off guard due to gaps in traditional monitoring. Satellite data provides a global view but lacks real-time, ground-level granularity. My personal motivation comes from seeing how delayed information can lead to preventable loss of life and property.
 
-This is how you make a list, if you need one:
-* problem 1
-* problem 2
-* etc.
+This project solves the problem of "blind spots" in climate monitoring by:
+*   Crowdsourcing hyper-local weather data from vehicles and personal devices.
+*   Fusing this ground truth with satellite imagery for a complete picture.
+*   Automating risk analysis and alerting to reduce response times.
 
 
 ## How is it used?
 
-Describe the process of using the solution. In what kind situations is the solution needed (environment, time, etc.)? Who are the users, what kinds of needs should be taken into account?
+The solution is used by emergency response centers and individual users in disaster-prone areas.
+1.  **Data Collection**: Mobile sensors (vehicles, IoT) continuously stream temperature, pressure, and humidity data.
+2.  **Processing**: The system aggregates this data in BigQuery and correlates it with satellite fire/flood indices.
+3.  **Action**: If a risk threshold is breached, the system generates a context-aware alert.
 
-Images will make your README look nice!
-Once you upload an image to your repository, you can link link to it like this (replace the URL with file path, if you've uploaded an image to Github.)
-![Cat](https://upload.wikimedia.org/wikipedia/commons/5/5e/Sleeping_cat_on_her_back.jpg)
+Generic overview of the whole mobile-mesh-ews system (including AI Decision Brain)
+![Swarm System Overview](SwarmSystem.png)
 
-If you need to resize images, you have to use an HTML tag, like this:
-<img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Sleeping_cat_on_her_back.jpg" width="300">
+The system uses AI/ML decision brain for risk/classifications/etc. from Big Data DB sources 
+(BigQueryAI SQL Logic Examples):
+```sql
+-- 1. Generate embeddings for real-time satellite imagery
+SELECT uri, ml_generate_embedding_result
+FROM ML.GENERATE_EMBEDDING(
+  MODEL `climate_ai.multimodal_embedding_model`,
+  (SELECT uri, ref FROM `climate_ai.earth_images` WHERE timestamp > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 HOUR))
+);
 
-This is how you create code examples:
-```
-def main():
-   countries = ['Denmark', 'Finland', 'Iceland', 'Norway', 'Sweden']
-   pop = [5615000, 5439000, 324000, 5080000, 9609000]   # not actually needed in this exercise...
-   fishers = [1891, 2652, 3800, 11611, 1757]
-
-   totPop = sum(pop)
-   totFish = sum(fishers)
-
-   # write your solution here
-
-   for i in range(len(countries)):
-      print("%s %.2f%%" % (countries[i], 100.0))    # current just prints 100%
-
-main()
+-- 2. Detect Wildfire Anomalies via Vector Search (Distance to "Fire" concept)
+SELECT base.uri AS suspicious_image_uri, distance
+FROM VECTOR_SEARCH(
+  TABLE `climate_ai.earth_image_embeddings`,
+  'ml_generate_embedding_result',
+  (
+    SELECT ml_generate_embedding_result
+    FROM ML.GENERATE_EMBEDDING(
+      MODEL `climate_ai.multimodal_embedding_model`,
+      (SELECT "wildfire smoke and thermal signature" AS content)
+    )
+  ),
+  top_k => 5
+);
 ```
 
 
 ## Data sources and AI methods
-Where does your data come from? Do you collect it yourself or do you use data collected by someone else?
-If you need to use links, here's an example:
-[Twitter API](https://developer.twitter.com/en/docs)
+The project relies on a hybrid data approach:
+*   **Mobile Mesh**: Live telemetry from simulated EVs and IoT devices.
+*   **Google Earth Engine**: Satellite imagery for environmental indices.
+*   **Global Weather APIs**: Baseline weather data for calibration.
 
-| Syntax      | Description |
-| ----------- | ----------- |
-| Header      | Title       |
-| Paragraph   | Text        |
+| Syntax         | Description |
+| -------------- | ----------- |
+| BigQuery AI/ML | Used for predictive modeling and risk classification |
+| Gemini AI      | Generates natural language alerts and user guidance |
+| Vector Search  | Finds historical analogues for current climate patterns |
 
 ## Challenges
 
-What does your project _not_ solve? Which limitations and ethical considerations should be taken into account when deploying a solution like this?
+What does your project _not_ solve?
+*   **Connectivity**: The mobile mesh relies on cellular or ad-hoc network availability, which can fail during disasters.
+*   **Adoption**: The system is effective only with a sufficiently dense network of participating sensors (critical mass).
+
+**Ethical Considerations**:
+*   **Privacy**: Collecting data from personal vehicles raises privacy concerns. We must ensure data is anonymized and users opt-in.
+*   **False Alarms**: AI hallucinations could trigger false panic; human-in-the-loop verification is essential for critical alerts.
 
 ## What next?
 
-How could your project grow and become something even more? What kind of skills, what kind of assistance would you  need to move on? 
+The project could grow into a global, decentralized safety network.
+*   **Edge AI**: Move more processing to the devices to reduce latency and dependency on the cloud.
+*   **Blockchain**: Incentivize data sharing with token rewards on a distributed ledger.
+*   **Partnerships**: Integrate with municipal smart city infrastructures.
+
+To move on, there is a need for development of the whole system and **hardware integration** (standardizing vehicle APIs), **legal frameworks** for data privacy, **AI testing**, given that this project focuses only on the concept and Big Data BigQuery AI Decision Brain.
 
 
 ## Acknowledgments
 
-* list here the sources of inspiration 
-* do not use code, images, data etc. from others without permission
-* when you have permission to use other people's materials, always mention the original creator and the open source / Creative Commons licence they've used
-  <br>For example: [Sleeping Cat on Her Back by Umberto Salvagnin](https://commons.wikimedia.org/wiki/File:Sleeping_cat_on_her_back.jpg#filelinks) / [CC BY 2.0](https://creativecommons.org/licenses/by/2.0)
-* etc
+*   Based on the **Mobile Mesh EWS** project: [mobile-mesh-ews](../mobile-mesh-ews/)
+*   Example project for [Building AI course](https://buildingai.elementsofai.com/)
+*   Swarm Architecture Article: [Innovative Swarm System Architecture](https://medium.com/@andrei-besleaga/innovative-swarm-system-architecture-with-live-mobile-edge-sensors-for-climate-monitoring-and-eb0124e7b451)
+
+## License
+Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)
