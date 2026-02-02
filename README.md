@@ -88,8 +88,8 @@ To move on, there is a need for development of the whole system and **hardware i
 
 ## Acknowledgments
 
-*   Based on the **Mobile Mesh EWS** project: [mobile-mesh-ews](../mobile-mesh-ews/)
-*   Example project for [Building AI course](https://buildingai.elementsofai.com/)
+*   Based on my **Mobile Mesh EWS** project: [mobile-mesh-ews](../mobile-mesh-ews/)
+*   Example project for Building AI course
 *   Swarm Architecture Article: [Innovative Swarm System Architecture](https://medium.com/@andrei-besleaga/innovative-swarm-system-architecture-with-live-mobile-edge-sensors-for-climate-monitoring-and-eb0124e7b451)
 
 ## License
