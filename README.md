@@ -1,6 +1,6 @@
 # Climate AI - Mobile Mesh EWS - AI Decision Brain
 
-Project for "Building AI" course - AI Decision Brain of the EWS System
+AI Decision Brain of an EWS System (Project for "Building AI" - University of Helsinki Course)
 
 ## Summary
 
